@@ -1,0 +1,49 @@
+Ubuntu: you were warned!
+
+The Ubuntu problem is actually an Apache 2.4 Debian package problem.
+
+When Debian moves to Apache 2.4 in the spring of 2015, with then release of Debian 8.0, "Jessie", the same changes will be required by Debian.
+
+These changes are already present in the Apache2 package for the Debian testing distribution, which will become Jessie in due time.
+
+The most important change is that it is now required that all conf files for apache2 *must* end in .conf.
+
+In addition, the default file in /etc/apache2/sites-available has been renamed as 000-default.conf
+
+So, to fix the result of running the script in a system and following the instructions in the worksheet, you need to do the following:
+
+1. After copying the five files from virthostfiles to the correct places as instructed. Be sure to also edit default and zzz-deny-generic to insert your actual IP as instructed in the worksheet.
+
+2. Then rename, using, mv /etc/apache2/sites-available/zzz-deny-generic as zzz-deny-generic.conf
+
+3. Then, in the /etc/apache2/sites-available directory, copy default  to 000-default.conf
+
+4. then do a2ensite zzz-deny-generic
+
+5. now *each time* you run the apachevirtualhostconfig command, you will see that a2ensite command will fail and give an error message. You will need to go to /etc/apache2/sites-available and rename, using mv, the config file for the domain you have just created to have .conf on the end. The you need to run a2ensite for the domain. then service apache2restart.
+
+
+If you have followed all the other instructions correctly, then your Apache should now work correctly.
+
+Other problems
+
+If you want your real ".tk" or other domain name to work, then you must set up the DNS entry for it. You can do this on dot.tk's DNS servers, or you can tell dot.tk that you want to use your own nameservers (you can use ns1.digitalocean.com...ns2...) and set up your DNS entries on Digital Ocean.
+
+If you are using /etc/hosts entries, you should be aware that these only work when browsing *from* the computer on which the /etc/hosts file is located.
+
+
+Locales problem
+
+If you are seeing locales errors, then you need to do this, as root
+
+dpkg-reconfigure locales
+
+or using sudo
+
+sudo dpkg-reconfigure locales
+
+Follow the on screen instruction to set up as a minimum the locale for US english. You might want to add your own language as well.
+
+
+
+

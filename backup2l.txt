@@ -1,0 +1,5 @@
+
+# in zz-backup2l file in cron.xxx
+BACKUPLOG="/var/log/backup2l.log"
+! which backup2l > /dev/null  || nice -n 19 backup2l -b >>$BACKUPLOG
+

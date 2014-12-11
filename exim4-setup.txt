@@ -1,0 +1,187 @@
+exim4 setup from debian default.
+
+One config file setup chosen
+
+editing /etc/exim4/
+
+After debconf macro definitions line add:
+
+# Set up deny blacklists
+CHECK_RCPT_IP_DNSBLS_DENY = zen.spamhaus.org : truncate.gbudb.net 
+#: safe.dnsbl.sorbs.net
+CHECK_RCPT_IP_DNSBLS = dnsbl.sorbs.net
+
+Alter domainlist setting thus:
+#
+# get local domain name list from virtualhosts directory listing
+#q
+#domainlist local_domains = MAIN_LOCAL_DOMAINS
+domainlist local_domains = @ : localhost : dsearch;/etc/exim4/virtualhosts
+
+in main/03 Add 
+tls_on_connect_ports = 465 
+
+
+Add mailman stuff after Main /03
+
+
+
+#####################################################
+### end main/04_exim4-config_mailmanoptions
+#####################################################
+
+# Mailman macro definitions
+
+# Home dir for the Mailman installation
+MM_HOME=/var/lib/mailman
+
+# User and group for Mailman
+MM_UID=list
+MM_GID=list
+
+#
+# Domains that your lists are in - colon separated list
+# you may wish to add these into local_domains as well
+domainlist mm_domains=tworedsocks.com
+
+# The path of the Mailman mail wrapper script
+MM_WRAP=MM_HOME/mail/mailman
+#
+# The path of the list config file (used as a required file when
+# verifying list addresses)
+MM_LISTCHK=MM_HOME/lists/${lc::$local_part}/config.pck
+#####################################################
+### end main/04_exim4-config_mailmanoptions
+#####################################################
+
+Add spam processing to the end of ACL40
+(not done on csmoodle.tk)
+
+
+
+# put headers in all messages (no matter if spam or not)
+# warn  spam = nobody:true
+#     add_header = X-Spam-Score: $spam_score ($spam_bar)
+#     add_header = X-Spam-Report: $spam_report
+
+# add second subject line with *SPAM* marker when message
+# is over threshold
+#  warn  spam = nobody
+#      add_header = Subject: ***SPAM (score:$spam_score)*** $h_Subject:
+
+
+## spamassassin, spams are never big and spamassassin can die on big emails, so we
+## limit its use under 500ko.
+accept  condition = ${if >={$message_size}{500k}{yes}{no}}
+warn    message = X-Spam-Score: $spam_score 
+        spam = nobody:true 
+warn    message = X-Spam-Report: $spam_report 
+        spam = nobody:true
+        condition = ${if >{$spam_score_int}{0}{true}{false}}
+warn    message = X-Spam-Status: Yes 
+        spam = nobody:true
+        condition = ${if >{$spam_score_int}{50}{true}{false}}
+deny    message = This message scored $spam_score spam points. 
+        spam = nobody:true 
+#       condition = ${if >{$spam_score_int}{70}{true}{false}} commented out for testing only.
+        condition = ${if >{$spam_score_int}{10000}{true}{false}}
+
+        #remove_header = subject #this does not work, contrary to the claim in the exim 4.82 documentation#
+        #but this is 4.80 !!! thank you debian, as always, two years behind the times.
+        #add_header = Subject: ***SPAM (score:$spam_score)*** $h_subject: #no need for this - all our clients see the sp
+am headers
+
+Add router/350to handle virtual hosts
+#####################################################
+### router/350_exim4-config_vdom_aliases
+#####################################################
+
+vdom_aliases:
+driver = redirect
+allow_defer
+allow_fail
+#original no ip virtual hosts restored
+domains = dsearch;/etc/exim4/virtualhosts
+#domains = dsearch;/etc/exim4/virtualhosts/80.68.90.253:dsearch;/etc/exim4/virtualhosts/80.68.90.136
+#domains = dsearch;/etc/exim4/virtualhosts/$received_ip_address
+data = ${expand:${lookup{$local_part}lsearch*@{/etc/exim4/virtualhosts/$domain}}}
+#data = ${expand:${lookup{$local_part}lsearch*@{/etc/exim4/virtualhosts/$received_ip_address/$domain}}}
+retry_use_local_part
+pipe_transport = address_pipe
+file_transport = address_file
+no_more
+
+#####################################################
+### end router/350_exim4-config_vdom_aliases
+#####################################################
+
+Add router/450 for mailman
+
+#####################################################
+### begin router/450_exim4-config_mailman
+#####################################################
+mailman_router:
+  driver = accept
+  domains = +mm_domains
+  require_files = MM_LISTCHK
+  local_part_suffix_optional
+  local_part_suffix = -admin : \
+    -bounces   : -bounces+*  : \
+    -confirm   : -confirm+*  : \
+    -join      : -leave      : \
+    -owner     : -request    : \
+    -subscribe : -unsubscribe
+  transport = mailman_transport
+
+#####################################################
+### end router/450_exim4-config_mailman
+#####################################################
+
+
+
+Add Mailman transport
+
+#####################################################
+### begin transport/40_exim4-config_mailman
+#####################################################
+mailman_transport:
+  driver = pipe
+  command = MM_WRAP \
+    '${if def:local_part_suffix \
+    {${sg{$local_part_suffix}{-(\\w+)(\\+.*)?}{\$1}}} \
+    {post}}' \
+    $local_part
+  current_directory = MM_HOME
+  home_directory = MM_HOME
+  user = MM_UID
+  group = MM_GID
+#####################################################
+### end transport/40_exim4-config_mailman
+#####################################################
+
+
+Need to add 587 465 ports to SMTPLISTENEROPTIONS in default/exim4
+SMTPLISTENEROPTIONS='-oX 587:465:25:10025 -oP /var/run/exim4/exim.pid'
+
+Need to install sasl2-bin to get smtp authentication to work
+
+Need to add Debian-exim to the sasl and ssl-cert groups
+
+And then restart exim4
+
+Setting up courier set POP3_TLS_REQUIRED=1 IMAP_TLS_REQUIRED=1 in the impad-ssl and pop3d-ssl config files
+
+Remove message from exim q 
+exim4 -Mrm MESSAGE-ID
+List messages in exim queue
+exim4 -bp
+
+
+DKIM signing - need this
+apt-get install acl
+root@tworedsocks:/home/my2way2in# setfacl --modify user:Debian-exim:5 /etc/ssl/private/tworedsocks_com.key 
+root@tworedsocks:/home/my2way2in# getfacl  /etc/ssl/private/tworedsocks_com.key 
+root@tworedsocks:/home/my2way2in# setfacl --modify user:Debian-exim:5 /etc/ssl/private/ 
+root@tworedsocks:/home/my2way2in# getfacl  /etc/ssl/private/
+tune2fs -o acl /dev/vda
+

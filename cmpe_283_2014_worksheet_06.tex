@@ -1,0 +1,103 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{csdnws}
+%\coursename{CMN 167}
+%\week{1}
+
+\begin{document}
+%\maketitle
+
+\section*{CMPE 283 Worksheet 06 - last before midterm}
+\section*{Project 06} 
+Deadline 0900 Saturday, November 8
+
+
+\section*{Classwork}
+In this class we will install the Content management system Wordpress on one of our virtual domains.
+
+
+You should be able to do many of the tasks required from this course from a tablet or even a smart phone. However, the easiest and most productive way to do the practical work in this course will be from a personal computer with Linux installed. Solving the problems you will encounter with \emph{any} method of accessing your server is \emph{part of the course}.
+
+\subsection*{Setting up Linux on your own computer}
+
+See the intruction on previous workheet
+
+\subsection*{Installing and configuring Wordpress}
+
+
+I suggest you have Linux up and running on your computer while you are working on the server. It will be handy, and also good practice.
+
+If you do not yet have Linux on your computer, you will need to use a program like Putty to access your droplet.
+
+
+If you want to move ahead, I suggest that you do a wordpress install on a real domain. You have the tools to create the new domain.
+
+\subsubsection*{Install php}
+
+\begin{verbatim}
+apt-get install php5 php-pear php5-mysql
+\end{verbatim}
+
+You will need to install mysql. (as root)
+
+\begin{verbatim}
+apt-get install mysql-server
+\end{verbatim}
+
+Be sure to give mysql a root password
+followed by
+
+\begin{verbatim}
+ mysql_secure_installation
+\end{verbatim}
+
+(which will remove all anonymous accounts)
+
+To make sure everything is working create a file info.php in the webroot directory of your domain with contents:
+
+\begin{verbatim}
+<html><body>
+<?php
+phpinfo();
+?>
+</body></html>
+\end{verbatim}
+
+Restart Apache and browse from your browser to www.yourdomain.tk/info.php
+
+You should see a page with all the information about your setup and your php setup.
+
+Wordpress wants the Apache rewrite module. Enable it
+
+\begin{verbatim}
+a2enmod rewrite
+\end{verbatim}
+
+
+Finally go to /etc/apache2/sites-available and edit your virtual domain file. There where you find index.html, replace it by index.php
+
+And reload apache \emph{again}
+
+Now you can go to
+
+wordpress.org
+
+and follow the ``5 minute installation guide'' to download and install wordpress in your chosen domain.
+
+
+\section*{Assignment}
+This is the big one. It will be possible to get a major part of the project grade for the first half of the term from this Assignment. Students who have posted their first five assignments regularly will also be able to get a major part of the project grade for the first half of the term.
+
+To get a 100\% project grade for the first half of term, you will need both to have submitted assignments \emph{and} completed all tasks up to project 06. 
+
+\begin{enumerate}
+\item Finish up what you started in class. Be prepared to show what you have done in the next lab class. 
+\item In particular, next week you \emph{must} be able to show your assistant that your server is complete, serving pages in more than one domain, and that Wordpress is setup on one domain and you are able to create blog entries on it. 
+\item Write up an account of what you did and what you learned. What was wrong or missing in these instructions? Could you now explain what you have done so far to a friend?
+\item Post your account to online.bilgi.edu.tr along with a link to your droplet.
+
+\end{enumerate}
+
+\copyright Chris Stephenson 2014
+
+\end{document}
