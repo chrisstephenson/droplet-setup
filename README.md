@@ -28,3 +28,7 @@ Before you start, you can download Github GUI Client (Graphical User Interface) 
 `yum install giggle`
 ###### Arch Linux
 `pacman -S giggle`
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Semyonic/droplet-setup/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
