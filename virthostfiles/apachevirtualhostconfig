@@ -25,7 +25,7 @@ usermod  -G sftp $2
 # remove unnecessary files from the home directory
 rm /var/www/$1/.bash_logout /var/www/$1/.bashrc /var/www/$1/.profile
 # run the template file through sed to create the actual config file for this virtual host
-cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$1/g" | sed -e "s/_ip_/$3/g" > /etc/apache2/sites-available/www.$1
+cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$1/g" | sed -e "s/_ip_/$3/g" > /etc/apache2/sites-available/www.$1.conf
 # set up the web root directory
 if [ -d "/var/www/$1/webroot" ]; then
     echo "webroot ok"
@@ -74,7 +74,7 @@ find /var/www/$1/webroot -type d -exec chmod gu+sx '{}' \;
 #
 # Start up our virtual host
 #
-a2ensite www.$1
+a2ensite www.$1.conf
 #
 # restart Apache
 #
