@@ -4,6 +4,7 @@
 #
 # (c) Chris Stephenson 2014
 # Licensed under GNU Public License v3 or later
+# Contributed by Orkun Aşa 2015
 #
 # No warranty explicit or implied that this script is fit for purpose or even that it will not harm your computer 
 #
@@ -17,19 +18,26 @@
 # And everyone knows there is no sanity clause. 
 #
 # 
-#Take domain name and username
+# Take the domain name and the username
 domain="${domain:-$(echo $1)}"
 user="${user:-$(echo $2)}"
-#check domain name
+ip="${ip:-$(echo $3)}"
+# check domain name
 if [ $domain = ]; then
-echo "Please, enter the domain name."
+echo "Please, enter the domain name"
 read domain
 fi
-#Check username
+# Check username
 if [ $user = ]; then
-echo "Please, enter the username."
+echo "Please, enter the username"
 read user
 fi
+if [ $ip = ]; then
+echo "Please, enter the ip address"
+read ip
+fi
+# Create the domain directory
+mkdir "/var/www/$domain"
 # set up a user to own the directory for the domain, without command shell access
 adduser --home /var/www/$domain --shell /bin/false --gecos ' ' $user
 # add the user to the sftp group, so it will be locked in an sftp chroot jail
@@ -38,7 +46,7 @@ usermod  -G sftp $user
 # remove unnecessary files from the home directory
 rm /var/www/$domain/.bash_logout /var/www/$domain/.bashrc /var/www/$domain/.profile
 # run the template file through sed to create the actual config file for this virtual host
-cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$domain/g" | sed -e "s/_ip_/$3/g" > /etc/apache2/sites-available/www.$domain.conf
+cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$domain/g" | sed -e "s/_ip_/$ip/g" > /etc/apache2/sites-available/www.$domain.conf
 # set up the web root directory
 if [ -d "/var/www/$domain/webroot" ]; then
     echo "webroot ok"
