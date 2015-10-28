@@ -4,6 +4,7 @@
 #
 # (c) Chris Stephenson 2014
 # Licensed under GNU Public License v3 or later
+# Contributed by Orkun Aşa 2015
 #
 # No warranty explicit or implied that this script is fit for purpose or even that it will not harm your computer 
 #
@@ -17,64 +18,97 @@
 # And everyone knows there is no sanity clause. 
 #
 # 
+# Take the domain name and the username
+domain="${domain:-$(echo $1)}"
+user="${user:-$(echo $2)}"
+ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
+echo "IP Adress: $ip" 
+
+# check domain name
+if [ $domain = ]; then
+echo -n "Please, enter the domain name: "
+read domain
+fi
+# Check username
+if [ $user = ]; then
+echo -n "Please, enter a new username: "
+read user
+fi
+if cd "/var/www/$domain" >/dev/null 2>&1; then
+echo -e "\e[91mThe domain is already exist. Please be careful!"
+echo -e -n "\e[39mPlease enter a domain name: "
+read domain
+else
+# Create the domain directory
+mkdir "/var/www/$domain"
+fi
+
+# Check the user 
+if id -u "$user" >/dev/null 2>&1; then
+echo -e "\e[91mYou entered existent username!"
+echo -n -e "\e[39mPlease write a new username: "
+read user
+else
+read sdas
 # set up a user to own the directory for the domain, without command shell access
-adduser --home /var/www/$1 --shell /bin/false --gecos ' ' $2
+adduser --home /var/www/$domain --shell /bin/false --gecos ' ' $user
+fi
 # add the user to the sftp group, so it will be locked in an sftp chroot jail
 # note that we must have set up the sftp group and the sftp config first for this to work.
-usermod  -G sftp $2
+usermod  -G sftp $user
 # remove unnecessary files from the home directory
-rm /var/www/$1/.bash_logout /var/www/$1/.bashrc /var/www/$1/.profile
+rm /var/www/$domain/.bash_logout /var/www/$domain/.bashrc /var/www/$domain/.profile
 # run the template file through sed to create the actual config file for this virtual host
-cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$1/g" | sed -e "s/_ip_/$3/g" > /etc/apache2/sites-available/www.$1.conf
+cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$domain/g" | sed -e "s/_ip_/$ip/g" > /etc/apache2/sites-available/www.$domain.conf
 # set up the web root directory
-if [ -d "/var/www/$1/webroot" ]; then
+if [ -d "/var/www/$domain/webroot" ]; then
     echo "webroot ok"
 else
     echo "creating webroot"
-    mkdir "/var/www/$1/webroot"
+    mkdir "/var/www/$domain/webroot"
 fi
 # make an empty robots.txt - cuts down the error messages in the log - can be filled in later
-touch /var/www/$1/webroot/robots.txt
+touch /var/www/$domain/webroot/robots.txt
 # make a default index.html so we can test our new domain and see requests are going to the correct place
-echo "<html><head></head><body><h1>Test index page for $1 </h1></body></html>" >  /var/www/$1/webroot/index.html
+echo "<html><head></head><body><h1>Test index page for $domain </h1></body></html>" >  /var/www/$domain/webroot/index.html
 # set up the correct file access permissions and ownership for the root and the document root for this
 # virtual domain 
 #
 # set group ownership to apache user (www-data) so apache can read the files
 #
-chown -R $2:www-data /var/www/$1/webroot 
+chown -R $user:www-data /var/www/$domain/webroot 
 #
 # Only group and user can read the document root
 #
-chmod -R 750 /var/www/$1/webroot 
+chmod -R 750 /var/www/$domain/webroot 
 #
 # Root must own the directory above webroot (sftp jail requirement)
 #
-chown root:$2 /var/www/$1
-chown root:www-data /var/www/$1/*
-chmod 755 /var/www/$1
-chmod 755 /var/www/$1/webroot
-chmod g+s /var/www/$1/webroot
-chmod 750 /var/www/$1/webroot/*
+chown root:$user /var/www/$domain
+chown root:www-data /var/www/$domain/*
+chmod 755 /var/www/$domain
+chmod 755 /var/www/$domain/webroot
+chmod g+s /var/www/$domain/webroot
+chmod 750 /var/www/$domain/webroot/*
 #
 # This section enables logging of sftp access by our sftp users
 # This helps determine how and when our sftp users have broken things.
 # Anyone who claims they really know what is happening in this set up doesn't fully
 # understand the situation. I just tried and tried until it worked. 
 #
-mkdir /var/www/$1/dev
-chmod 755 /var/www/$1/dev
-chown root:root /var/www/$1/dev
-echo "\$AddUnixListenSocket /var/www/$1/dev/log" >> /etc/rsyslog.d/60-sftp.conf
+mkdir /var/www/$domain/dev
+chmod 755 /var/www/$domain/dev
+chown root:root /var/www/$domain/dev
+echo "\$AddUnixListenSocket /var/www/$domain/dev/log" >> /etc/rsyslog.d/60-sftp.conf
 #
 # Set the sticky bit to try to ensure that newly created files have the correct permissions
 #
-find /var/www/$1/webroot -type d -exec chmod gu+sx '{}' \;
+find /var/www/$domain/webroot -type d -exec chmod gu+sx '{}' \;
 
 #
 # Start up our virtual host
 #
-a2ensite www.$1.conf
+a2ensite www.$domain.conf
 #
 # restart Apache
 #
