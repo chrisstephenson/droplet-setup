@@ -21,25 +21,38 @@
 # Take the domain name and the username
 domain="${domain:-$(echo $1)}"
 user="${user:-$(echo $2)}"
-ip="${ip:-$(echo $3)}"
+ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
+echo "IP Adress: $ip" 
+
 # check domain name
 if [ $domain = ]; then
-echo "Please, enter the domain name"
+echo -n "Please, enter the domain name: "
 read domain
 fi
 # Check username
 if [ $user = ]; then
-echo "Please, enter the username"
+echo -n "Please, enter a new username: "
 read user
 fi
-if [ $ip = ]; then
-echo "Please, enter the ip address"
-read ip
-fi
+if cd "/var/www/$domain" >/dev/null 2>&1; then
+echo -e "\e[91mThe domain is already exist. Please be careful!"
+echo -e -n "\e[39mPlease enter a domain name: "
+read domain
+else
 # Create the domain directory
 mkdir "/var/www/$domain"
+fi
+
+# Check the user 
+if id -u "$user" >/dev/null 2>&1; then
+echo -e "\e[91mYou entered existent username!"
+echo -n -e "\e[39mPlease write a new username: "
+read user
+else
+read sdas
 # set up a user to own the directory for the domain, without command shell access
 adduser --home /var/www/$domain --shell /bin/false --gecos ' ' $user
+fi
 # add the user to the sftp group, so it will be locked in an sftp chroot jail
 # note that we must have set up the sftp group and the sftp config first for this to work.
 usermod  -G sftp $user
