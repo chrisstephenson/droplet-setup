@@ -11,7 +11,7 @@
 #
 # Replace _IP_ with the ip no for the server. Repeat if more than one ip no served
 #
-<VirtualHost _IP_:80>
+<VirtualHost *:80>
 	ServerName deny
 	ServerAdmin webmaster@localhost
 

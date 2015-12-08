@@ -2,14 +2,14 @@
 #
 # apachevirtualhostconfig  sets up an apache virtual host using a template
 #
-# (c) Chris Stephenson 2014
+# (c) Chris Stephenson 2015
 # Licensed under GNU Public License v3 or later
 #
 # No warranty explicit or implied that this script is fit for purpose or even that it will not harm your computer 
 #
 # must run with root privileges
-# parameters - domain.name  sftp.user.name IP number 
-# example use: apachevirtualhostconfig myfirstdomain.com myfirstdomainsftpuser 111.23.11.97
+# parameters - domain.name  sftp.user.name 
+# example use: apachevirtualhostconfig myfirstdomain.com myfirstdomainsftpuser
 #
 #
 # Note: silly parameter values may make this script fail 
@@ -25,7 +25,7 @@ usermod  -G sftp $2
 # remove unnecessary files from the home directory
 rm /var/www/$1/.bash_logout /var/www/$1/.bashrc /var/www/$1/.profile
 # run the template file through sed to create the actual config file for this virtual host
-cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$1/g" | sed -e "s/_ip_/$3/g" > /etc/apache2/sites-available/www.$1.conf
+cat /etc/apache2/sites-available/template | sed -e "s/_domain_/$1/g"  > /etc/apache2/sites-available/www.$1.conf
 # set up the web root directory
 if [ -d "/var/www/$1/webroot" ]; then
     echo "webroot ok"

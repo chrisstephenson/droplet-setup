@@ -2,7 +2,7 @@ Ubuntu: you were warned!
 
 The Ubuntu problem is actually an Apache 2.4 Debian package problem.
 
-When Debian moves to Apache 2.4 in the spring of 2015, with the release of Debian 8.0, "Jessie", the same changes will be required by Debian.
+When Debian moves to Apache 2.4 in the spring of 2015, with then release of Debian 8.0, "Jessie", the same changes will be required by Debian.
 
 These changes are already present in the Apache2 package for the Debian testing distribution, which will become Jessie in due time.
 

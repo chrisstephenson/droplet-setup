@@ -1,16 +1,19 @@
 #
-#   Virtual Host template  updated 2014-09-10
+#   Virtual Host template  updated 2015-12-08
 #
 #   This is a template for setting up new virtual hosts on Apache under Debian
 #   with some default security and other settings.
-#   _domain_ and _ip_ are replaced by the actual domain name and ip number when the apachevirtualhostconfig script runs
+#   _domain_ is replaced by the actual domain name and ip number when the apachevirtualhostconfig script runs
 #   this template through sed
 #
 #   Once the domain is set up you may need to hand edit the resulting config file
 #   to meet the specific requirements of a particular virtual host. Don't forget
-#   to comment your changes. 
+#   to comment your changes
 #
-# (c) Chris Stephenson 2014
+#   Now works to Apache 2.4 with module access_compat *disabled*. No longer tries to support specific multiple IPs. You can have more than 1 IP, 
+#   but all virtual hosts match all IPs 
+#
+# (c) Chris Stephenson 2015
 #
 # Licensed under GNU Public License v3 or later
 #
@@ -18,11 +21,10 @@
 #
 # 
 
-
 #
 #   Match this virtual host to _domain_ and www._domain_ and all other subdomains of _domain_ 
 #
-<VirtualHost _ip_:80>
+<VirtualHost *:80>
     ServerName www._domain_
     ServerAlias _domain_
     ServerAlias *._domain_
@@ -37,13 +39,11 @@
     DocumentRoot /var/www/_domain_/webroot
     <Directory /var/www/_domain_/webroot>
     # .htaccess and .htpasswd banned
-        AllowOverride none        
-	 # prevent directory listings
-	     Options -Indexes          
+    AllowOverride none        
+    # prevent directory listings
+    Options -Indexes          
     # allow access to any documents not explicitly banned
-        Order Allow,Deny             
-    # everyone can look
-        Allow from all            
+    Require all granted    
     </Directory>
     #
     # If you plan to support any foreign characters, utf-8 is best, but not globally enabled in our set up
