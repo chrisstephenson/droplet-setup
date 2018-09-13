@@ -1,14 +1,11 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-
+\input{listing-setup.tex}
 \begin{document}
 %\maketitle
 
-\section*{Project 01} 
-Deadline 0900 Tuesday, September 29
-
-\section*{Classwork}
-In this class we will start setting up our droplets and Linux on our own 
+\section*{Worksheet 01} 
+In this worksheet we will start setting up our droplets and Linux on our own 
 computers.
 
 Students who wish to set up a virtual server on a different provider from 
@@ -65,21 +62,21 @@ While Digital Ocean is setting up your Linux, let’s review what you just did. 
 
 Sudo is program that will call another program with root privileges. It is a way of doing things that you are not allowed to do as normal user for just one command, without stepping up permanently to become root and living with the possibility of shooting yourself in the foot with any little mistake. Sudo is the default way of doing these things on Ubuntu. Su is the way of stepping up to be root permanently. We will set up our Debian system to also work with sudo.
 
-The apt-get program is part of the system for installing packages on Debian. Because Ubuntu is Debian underneath, Ubuntu and Debian use the same package manager. Every Linux distribution has a (large) set of programs that have been compiled, set up, configured and documented to work correctly with that version of the operating system. These programs are stored in repositories for that distribution on the internet. You install and update them using a package manager program. The package manager programs are different for different distributions. Red Hat, Suse each have their own, different from Debian. The packages themselves can also be different. So a program like Apache may work or be configured slightly differently for different distributions. So you should always read the documentation for the distribution package as well as for the program. If you are looking for hints to solve problems, be sure to Google “debian apache” along with the error message, as your problem may be distribution specific.
+The apt-get program is part of the system for installing packages on Debian. Because Ubuntu is Debian underneath, Ubuntu and Debian use the same package manager. Every Linux distribution has a (large) set of programs that have been compiled, set up, configured and documented to work correctly with that version of the operating system. These programs are stored in repositories for that distribution on the internet. You install and update them using a package manager program. The package manager programs are different for different distributions. Red Hat, Suse each have their own, different from Debian. The packages themselves can also be different. So a program like nginx may work or be configured slightly differently for different distributions. So you should always read the documentation for the distribution package as well as for the program. If you are looking for hints to solve problems, be sure to Google “debian nginx” along with the error message, as your problem may be distribution specific.
 
 \subsection*{Logging in to our Linux}
 
 Our Linux should now be set up on our droplet, so we can log in to it using ssh. From your terminal, type 
-\begin{verbatim}
-ssh root@<ip no>
-\end{verbatim}
-where ip no is the ip number for your droplet (you can see that on your droplet dashboard)
+
+\lstinputlisting[language=bash]{ssh-root.sh}
+
+where <ip no> is the ip number for your droplet (you can see that on your droplet dashboard)
 You will be asked to accept the security key information for the server  - just say yes
 enter the password. 
 
 You are now on the system and you are ``root'', so you can break anything you want.  
 
-Firstly we must do some elementary security work. The moment your system is up and running ill intentioned robots will start trying to log in to it. 
+Firstly we must do some elementary security work. The moment your system is up and running, ill intentioned robots will start trying to log in to it. 
 
 We are now using the command line. The BASH command line, actually.
 
@@ -87,59 +84,60 @@ We are now using the command line. The BASH command line, actually.
 Some useful beginning things to know about the command line.
 
 Generally we will write something like 
-\begin{verbatim}
+
+\begin{lstlisting}
 <program name> -<option1> -<maybe another option(s)> <some file name>  <maybe another file name>
-\end{verbatim}
+\end{lstlisting}
 
 
 If we make a mistake on the command line, or want to repeat a command we typed before, we can use the up arrow key (as many times as we like) to get back to any command we typed before, then use the left and right arrow keys, delete and backspace keys to edit the line, then type return to execute it. This saves a lot of time. But be careful!
 
-If our command references a file or directory, we can type the first one or more characters of the file or directory name, then use the tab key. If the file name is unique, the name is filled in for you. This drives my daughter crazy when I do it because she thinks it is “spooky”. But it makes command typing super fast.
+If our command references a file or directory, we can type the first one or more characters of the file or directory name, then use the tab key. If the file name is unique, the name is filled in for you. This drives my daughter crazy when I do it because she thinks it is “spooky”. But it makes command typing super fast. 
 
 If we want to find out how a program or command works and what we should write after the program name, type
-\begin{verbatim}
+\begin{lstlisting}
 man <program name>
-\end{verbatim}
+\end{lstlisting}
 or for even more information, sometimes
-\begin{verbatim}
+\begin{lstlisting}
 info <program name>  
-\end{verbatim}
+\end{lstlisting}
 To get out of the information pages, type 
-\begin{verbatim}
-q
-\end{verbatim}
+
+\lstinputlisting[language=bash]{q.sh}
+
 Try 
-\begin{verbatim}
+\begin{lstlisting}
 man ls
-\end{verbatim}
+\end{lstlisting}
 and see what you get.
-\begin{verbatim}
-q 
-\end{verbatim}
+
+\lstinputlisting[language=bash]{q.sh}
+
 to get out.
 When we are using the command line, there is a “current directory”. The assumption is that the files we are referencing are in this directory, unless we specify otherwise. The current directory will be shown before the prompt on your terminal. Be careful when using the command history, because a command you did before may do something different if the current directory has changed. Linux directories are quite like Windows directories, except the slash is a forward slash. Windows came after Linux and I guess Microsoft made everything slightly different for intellectual property reasons.
 
 To change the current directory, use the command 
-\begin{verbatim}
+\begin{lstlisting}
 cd
-\end{verbatim}
+\end{lstlisting}
 (this would be chdir in DOS)
 
 In linux directories “.” means the current directory, “..” means the directory above in the hierarchy, so we can sometimes write
-\begin{verbatim}
+\begin{lstlisting}
 cd ../../..
-\end{verbatim}
+\end{lstlisting}
 
 to get out of some deep place we have got to.
 
 First let us make sure our system is completely up to date
-\begin{verbatim}
+\begin{lstlisting}
 apt-get update
-\end{verbatim}
+\end{lstlisting}
 checks the repository
-\begin{verbatim}
+\begin{lstlisting}
 apt-get upgrade
-\end{verbatim}
+\end{lstlisting}
 does the actual update, if necessary.
 
 We need some user accounts.
@@ -152,65 +150,53 @@ If you try to use makepasswd, wthout installing it, you will not get the friendl
 Make a password.
 
 Do
-\begin{verbatim}
+\begin{lstlisting}
 adduser yourname
-\end{verbatim}
+\end{lstlisting}
 
 follow the prompts and accept the default values for everything by pressing return. If you are paying attention you will realise that you need to enter “y” for the very last question.
 
 Check what you have done. Open a second tab in the terminal program on your own computer. CTRL-SHIFT-T in the terminal window will do that.
-\begin{verbatim}
+\begin{lstlisting}
 ssh yourname@<ip no>
-\end{verbatim}
+\end{lstlisting}
 enter your password to log in
 
 then
-\begin{verbatim}
+\begin{lstlisting}
 ls
-\end{verbatim}
+\end{lstlisting}
 will list your home directory
 Except, of course that you haven’t made any files yet, so your home directory is empty. 
 Type
-\begin{verbatim}
+\begin{lstlisting}
 touch yournametestfile
-\end{verbatim}
+\end{lstlisting}
 touch just makes an empty file with the given name for you.
 and try
-\begin{verbatim}
+\begin{lstlisting}
 ls
-\end{verbatim}
+\end{lstlisting}
 again
-\begin{verbatim}
+\begin{lstlisting}
 ls -l
-\end{verbatim}
+\end{lstlisting}
 will list your directory in more detail. We will come back to what that detail means in a session or two. 
-\begin{verbatim}
-ls -la
-\end{verbatim}
-even more detail. Now 
-\begin{verbatim}
+\lstinputlisting[language=bash]{ls-la.sh}
+Now 
+\begin{lstlisting} 
 logout
-\end{verbatim}
+\end{lstlisting}
 
 then go back to your original terminal tab.
 
 Do 
-\begin{verbatim}
-ls -la
-\end{verbatim}
+
+\lstinputlisting[language=bash]{ls-la.sh}
 Just to see what you have there.
 
+\vspace{4cm}
 
-\section*{Assignment}
-
-%Deadline for submission is 0900 Monday September 29. 
-
-\begin{enumerate}
-\item Finish up what you started in class. Be prepared to show what you have done in the next lab class. 
-
-
-\end{enumerate}
-
-\copyright Chris Stephenson 2014
+\copyright Chris Stephenson 2018
 
 \end{document}
