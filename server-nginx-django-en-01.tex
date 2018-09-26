@@ -46,7 +46,7 @@ Now we need to install Linux
 
 Go to the “dashboard” for your droplet. Click “deploy a linux distribution”
 
-Choose the latest 64 bit version of Debian GNU/Linux (7 at time of writing). We will use Debian because it is generally stable, does not change version very often and has a big community to support it.  In terms of the politics of Free Software, Debian is one of the “purer” distributions and also one of the more democratic distributions. That is why change is slower but more reliable. Debian is also not tied to any one corporation. Ironically that makes it very important commercially.
+Choose the latest 64 bit version of Debian GNU/Linux (9 at time of writing). We will use Debian because it is generally stable, does not change version very often and has a big community to support it.  In terms of the politics of Free Software, Debian is one of the “purer” distributions and also one of the more democratic distributions. That is why change is slower but more reliable. Debian is also not tied to any one corporation. Ironically that makes it very important commercially.
 
 You have some entries to make in the popup window.
 
@@ -151,14 +151,14 @@ Make a password.
 
 Do
 \begin{lstlisting}
-adduser yourname
+adduser <yourname>
 \end{lstlisting}
 
 follow the prompts and accept the default values for everything by pressing return. If you are paying attention you will realise that you need to enter “y” for the very last question.
 
 Check what you have done. Open a second tab in the terminal program on your own computer. CTRL-SHIFT-T in the terminal window will do that.
 \begin{lstlisting}
-ssh yourname@<ip no>
+ssh <yourname>@<ip no>
 \end{lstlisting}
 enter your password to log in
 
@@ -170,7 +170,7 @@ will list your home directory
 Except, of course that you haven’t made any files yet, so your home directory is empty. 
 Type
 \begin{lstlisting}
-touch yournametestfile
+touch <yourname>testfile
 \end{lstlisting}
 touch just makes an empty file with the given name for you.
 and try
