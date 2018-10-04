@@ -1,0 +1,242 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\input{listing-setup.tex}
+\begin{document}
+
+\section*{Worksheet 02}
+
+In this class we will continue setting up our droplets and Linux on our own computers.
+
+
+Students who wish to set up a virtual server on a different provider from 
+Digital Ocean or who want to use different operating system choices are 
+absolutely free to do so. You should note that the instructions in the worksheet may not work exactly in other Linux distributions, though they will almost certainly work with slight modifications.
+
+None of this will work with Microsoft Windows on the server. Don't use it.
+
+On your own computer, setting up Linux as an alternative boot will make it easier for you to experiment and learn offline and make certificated access to your droplet or other server easier. I strongly recommend you do this.
+
+You should be able to do many of the tasks required from this course from a tablet or even a smart phone. However, the easiest and most productive way to do the practical work in this course will be from a personal computer with Linux installed. Solving the problems you will encounter with \emph{any} method of accessing your server is \emph{part of the course}.
+
+\subsection*{Setting up Linux on your own computer}
+
+If you have not yet done this, do it now. 
+
+I have a couple of USB sticks with Ubuntu on that you can use in the labs.
+
+
+\begin{enumerate}
+ \item Backup the data on your computer.
+ \item Boot Ubuntu from a USB stick. 64 bit verion is preferable on a modern computer, 
+  essential if RAM is more than 2 Gbyte.
+ \item Check that internet access and some common functions are working in the Ubuntu booted from USB stick.
+ \item If all is ok click ``Install'' and follow the on screen instructions.
+\end{enumerate}
+
+\subsection*{Doing more to set up your droplet}
+
+
+I suggest you have Linux up and running on your computer while you are working on the server  it will be handy, and also good practice.
+
+If you do not yet have Linux on your computer, you will need to use a program like Putty to access your droplet.
+
+Another useful thing to do. Open a text file in a text editor and keep it open on your desktop. The linux program is gedit. Write everything you do into the file. Copy/paste error messages you get there. Save the file frequently. This a record for you and also for anyone else (me in this case) who needs to help you. Believe me, having a record of what you did to “get into this mess” will save you hours of heartbreak later. 
+
+Now we will do some configuring. To do this we will need to edit some text files. So we will install the simplest text editor – nano. You know how to do that by now. Do not forget that we have not yet set up sudo on the server.
+Use
+\begin{lstlisting}
+su
+\end{lstlisting}
+To become root
+(You will need to enter the root password)
+Once you have installed nano, by using apt-get, type
+\begin{lstlisting}
+exit
+\end{lstlisting}
+to stop being root.
+
+In Debian Linux system wide configuration files are kept in the /etc directory and its subdirectories.
+
+So let's go there. We need to be root again to have access to these files. Type
+\begin{lstlisting}
+su
+\end{lstlisting}
+to become root
+\begin{lstlisting}
+cd /e 
+\end{lstlisting}
+then tab then return. Quicker, isn’t it?
+
+Do 
+\begin{lstlisting}
+ls
+\end{lstlisting}
+
+to see what is there. 
+
+Lots of config files and config directories.
+
+We are going to change our port for accessing the system to a non-standard port and ban logins as root. The first stops drive by login attempts. The second means that you need two passwords to become root.
+
+To do this we will edit the SSH config file, \verb|sshd_config|. Be careful. We can make the system inaccessible via SSH, if we get this wrong. The advantage of a virtual server is that there is always another way in, via the web interface, so we can fix any messes we make.
+
+The config file we need to edit is in the \verb|/etc/ssh| directory
+
+type
+\begin{lstlisting}
+cd ssh
+\end{lstlisting}
+
+to go there.
+
+Now type
+
+\begin{lstlisting}
+ls
+\end{lstlisting}
+ 
+to see which files are there.
+
+Let’s make our port number 1729. Why? It is unassigned and it has a very nice history. Google “1729”, when you have time, it is a lovely number.
+
+Edit \verb|sshd_config| by typing
+
+\begin{lstlisting}
+nano sshd_config
+\end{lstlisting}
+
+Did you use tab completion to enter that file name? Good!
+
+Find the line with Port. Change the number to 1729. Make sure that there is no ``\verb|#|'' at the beginning of the line as that turns a line into a comment 
+
+Find the line beginning PermitRootLogin. Change yes to no.
+
+exit nano and say yes to saving the file.
+
+You have now changed the configuration file for the SSH daemon (a daemon is a program that runs all the time waiting for something to do). But the program only reads its configuration file when it starts up, or when you tell it to.
+
+Type
+\begin{lstlisting}
+service ssh reload
+\end{lstlisting}
+to get the ssh daemon to reread its configuration.
+
+Why did we do all this?
+
+Type 
+\begin{lstlisting}
+cat /var/log/auth.log
+\end{lstlisting}
+
+This lists the contents of the file where all login attempts are recorded. You should see your own login there. If you do not see any other, failed, attempts, you have been lucky.
+
+If the file scrolls off the screen, type
+\begin{lstlisting}
+cat /var/log/auth.log | less
+\end{lstlisting}
+the | is a special character you will need to search for on your keyboard, not always in the same place.
+
+Cat simply takes the contents of a file and transfers it to the screen, or if you “pipe” it using |, to another program. Less is a program that lets you scroll through its input, using page up page down. Type q to get out of less.  
+
+Now type
+\begin{lstlisting}
+exit
+\end{lstlisting}
+to stop being root, then
+\begin{lstlisting}
+logout
+\end{lstlisting}
+to leave the system
+and let us see if we can now login.
+
+Use the up arrow key to try our last login. It should not work.
+Now try
+
+\begin{lstlisting}
+ssh -p1729 root@<ip no>
+\end{lstlisting}
+
+It also should not work.
+
+Now try
+\begin{lstlisting}
+ssh -p1729 <yourname>@<ip no>
+\end{lstlisting}
+
+replacing \verb|<yourname>| with the your non-root user name and your own password
+
+This should now work.
+
+Type 
+
+\begin{lstlisting}
+su
+\end{lstlisting}
+
+and enter the root password to become root again.
+
+\subsection*{Installing software}
+Now we can install some more software that we will need.
+\begin{lstlisting}
+apt-get install rsync rkhunter logrotate nginx mc php5 apticron backup2l
+\end{lstlisting}
+
+What are these programs for?
+\begin{itemize}
+ \item{rsync} a file transfer program that only transfers the files that have changed  since the last backup
+ \item rkhunter a root kit hunter to check your system has not been compromised
+
+ \item logrotate manages your log files so you know what’s been going on in the system without completely filling your disk.
+ \item nginx is a HTTP-server   
+ \item mc a slightly better editor and navigator than nano
+ \item php5 a (not very nice) web programming language that we need for some other programs we will install
+ \item apticron checks regularly to see if any of your installed packages are out of date and emails you if they are.
+
+ \item backup2l a very basic change based backup utility that keeps a history of backups.
+ 
+
+
+\end{itemize}
+
+
+
+Now do 
+
+\begin{lstlisting}
+sudo apt-get install nginx
+\end{lstlisting}
+
+to install nginx.
+
+Open a new tab in your browser and enter the \begin{lstlisting}
+	http://your_server_ip
+\end{lstlisting} for the droplet in the browser address bar.
+
+You should get the default nignx page.
+
+Now do
+
+\begin{lstlisting}
+sudo systemctl stop nginx
+
+\end{lstlisting}
+
+Try reloading the web page. It should be gone.
+
+We haven’t secured nginx yet, so we will leave it turned off.
+
+
+\section*{Assignment}
+
+%Deadline for submission is 0900 Monday September 29. 
+
+\begin{enumerate}
+\item Finish up what you started in class. Be prepared to show what you have done in the next lab class. 
+\item Write up an account of what you did and what you learned. What was wrong or missing in these instructions? Could you now explain what you have done so far to a friend?
+
+
+\end{enumerate}
+
+\copyright Chris Stephenson 2018
+
+\end{document}
